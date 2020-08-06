@@ -59,5 +59,8 @@ class GeraGrafo:
 
         return self.grafo
 
-    def edges(self):
-        return self.grafo.number_of_edges()
+    def n_nodes(self):
+        return self.grafo.number_of_nodes()
+
+    def arestas(self):
+        return self.grafo.edges()
