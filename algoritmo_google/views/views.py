@@ -6,12 +6,12 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 class GeraVisualizacao:
-    def __init__(self, G):
+    def __init__(self, G, n_nodes):
         self.grafo = G
         self.posicao = nx.spring_layout(self.grafo, dim=3)
-        self.n_nodes = self.grafo.number_of_nodes()
+        self.n_nodes = n_nodes
 
-    def gera3d(self)
+    def gera3d(self):
         maior_aresta = max([self.grafo.degree(i) for i in range(1, self.n_nodes+1)])
         cores_nos = [plt.cm.plasma(self.grafo.degree(i)/maior_aresta) for i in range(1, self.n_nodes+1)]
 
@@ -36,3 +36,14 @@ class GeraVisualizacao:
         eixo3d.set_axis_off()
         plt.show()
         return
+
+class MostraMatriz:
+    def __init__(self, matriz):
+        self.matriz = matriz
+
+    def mostraMatriz(self):
+        print("\n")
+        for i in range(len(self.matriz)):
+            for k in range(len(self.matriz)):
+                print("%4.2f" % self.matriz[i][k], " ", end ='')
+            print("")
