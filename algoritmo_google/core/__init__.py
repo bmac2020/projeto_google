@@ -1,3 +1,4 @@
 #!/usr/bin/python3
 
-from .core import GeraMatriz
+# Importa as classes existentes no core.py
+from .core import GeraGrafo, GeraMatriz
