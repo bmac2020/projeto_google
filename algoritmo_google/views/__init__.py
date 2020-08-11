@@ -1,3 +1,4 @@
 #!/usr/bin/python3
 
-from .views import GeraVisualizacao, MostraMatriz
+# Importa as classes existentes no views.py
+from .views import MostraVisualizacao, MostraMatriz
