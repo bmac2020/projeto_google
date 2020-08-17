@@ -17,10 +17,11 @@ def main():
     grafo.criaGrafo()
     numero_nodes = grafo.n_nodes()
     arestas = grafo.arestas()
+    posicao = grafo.posicao()
 
     # Exibindo o grafo em 3D.
     print("A visualização será exibida por 10 segundos.")
-    mostra = MostraVisualizacao(vars(grafo)['grafo'], numero_nodes)
+    mostra = MostraVisualizacao(vars(grafo)['grafo'], numero_nodes, posicao, arestas)
     mostra.gera3d()
 
     # Gerando a matriz com base no grafo.
