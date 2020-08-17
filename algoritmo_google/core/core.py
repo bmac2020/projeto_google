@@ -70,17 +70,22 @@ class GeraGrafo:
     def arestas(self): # Gera as arestas (conexões) existentes no grafo.
         return self.grafo.edges()
 
+    def posicao(self): # Gera a posição do grafo.
+        self.posicao = nx.spring_layout(self.grafo, dim=3)
+        return self.posicao
+
 class GeraMatriz:
     def __init__(self, grafo, n_nodes, arestas):
-        self.n_nodes = n_nodes
-        self.grafo = grafo
-        self.arestas = arestas
+        self.n_nodes = n_nodes # Define o número de nós dentro do escopo da classe.
+        self.grafo = grafo # Define o grafo dentro do escopo da classe.
+        self.arestas = arestas # Define as arestas dentro do escopo da classe.
 
     def geraMatriz(self):
-        grafo_lista = []
+        grafo_lista = [] # Essa lista guardará a arestas em forma de list e não de tupla.
         for k in self.arestas:
             grafo_lista.append(list(k))
 
+        # Cria a matriz com zeros, do tamanho do grafo.
         matriz = [[0 for k in range(self.n_nodes)] for i in range(self.n_nodes)]
 
         for i in range(1, self.n_nodes+1):
