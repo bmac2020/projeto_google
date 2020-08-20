@@ -36,31 +36,15 @@ class GeraGrafo:
             for t in self.caciques: # Faz a conexão entre os caciques e os respectivos índios.
                 self.grafo.add_edge(t, t+cont)
                 self.grafo.add_edge(t+cont, t)
+                for i in self.grafo.edges(): # Faz a conexão entre os índios.
+                    if i[0] == t and i[1] != t+cont and i[1] not in self.caciques2:
+                        self.grafo.add_edge(i[1], t+cont)
+                        self.grafo.add_edge(t+cont, i[1])
+                    elif i[1] == t and i[0] != t+cont and i[0] not in self.caciques2:
+                        self.grafo.add_edge(i[0], t+cont)
+                        self.grafo.add_edge(t+cont, i[0])
             del self.caciques[0]
             cont = cont + 1
-
-        nova_lista = [] # Cria uma nova lista que guardará os índios.
-        for i in self.grafo.edges(): # Percorre todas as conexões.
-            x = list(i) # É preciso converter para lista, pois as conexões são tuplas.
-            if (x[0] and x[1]) in self.caciques2: # Se os dois valores forem caciques, então o loop é reiniciado.
-                continue
-            # Verifica se o x[0] é cacique e se x[1] não já foi adicionado a nova_lista
-            elif x[0] in self.caciques2 and x[1] not in nova_lista:
-                nova_lista.append([x[1], x[0]]) # Coloca o cacique como segundo elemento.
-            # Verifica se o x[1] é cacique e se x[0] não já foi adicionado a nova_lista
-            elif x[1] in self.caciques2 and x[0] not in nova_lista:
-                nova_lista.append([x[0], x[1]]) # Coloca o cacique como segundo elemento.
-
-        for i in self.caciques2: # Percorre a segunda lista de caciques.
-            list2 = [] # Cria outra nova lista para guardar só os índios.
-            for x in nova_lista: # Percorre a nova_lista procurando o cacique igual a i.
-                if x[1] == i:
-                    list2.append(x[0]) # Appenda a list2 com o índio desse cacique i.
-            for z in range(len(list2)-1): # Percorre a list2 até o penúltimo valor.
-                for k in range(z, len(list2)): # Percorre list2 de z até o último valor.
-                    if list2[z] != list2[k]: # Para que não seja feita conexões de um índio consigo mesmo.
-                        self.grafo.add_edge(list2[z], list2[k]) # Liga um índio ao outro.
-                        self.grafo.add_edge(list2[k], list2[z]) # Liga um índio ao outro.
 
         return self.grafo # Retorna o grafo.
 
@@ -103,3 +87,118 @@ class GeraMatriz:
                     matriz[i][k] = 1/cont
 
         return matriz
+
+
+class GeraMatrizModificada:
+    def __init__(self, matriz, n_nodes):
+        self.matriz = matriz
+        self.n_nodes = n_nodes
+
+    def cria_MM(self):
+        alfa = 0.15
+        alfa_Sn = alfa * 1 / self.n_nodes  # Elementos da Matriz Sn.
+        MM = []  # Matriz Modificada.
+        MM[:] = self.matriz[:]
+
+        for k in range(self.n_nodes):
+            for i in range(self.n_nodes):  # MM = (1 - alfa)M + alfa*Sn.
+                MM[k][i] = (1 - alfa) * MM[k][i] + alfa_Sn
+
+        return MM
+
+class MatrizAuxiliar:
+    def __init__(self, matriz_modificada, n_nodes):
+        self.matriz = matriz_modificada
+        self.n_nodes = n_nodes
+
+    def cria_matrizaux(self):
+        matriz_aux = []
+        matriz_aux[:] = self.matriz[:]
+
+        for k in range(self.n_nodes):
+            matriz_aux[k][k] = matriz_aux[k][k] - 1 # Subtrai 1 da diagonal principal.
+
+        return matriz_aux
+
+class Escalonamento:
+    def __init__(self, matriz_aux, n_nodes):
+        self.matriz = matriz_aux
+        self.n_nodes = n_nodes
+
+    def escalona(self):
+        # Realiza o pivotamento.
+        for k in range(self.n_nodes): # Varre as colunas.
+            # Define variável que recebe o elemento de maior valor absoluto da coluna. Começa com o 1º.
+            maximo_absoluto = abs(self.matriz[0][k])
+            # Define variável que recebe o indice do maior valor absoluto da coluna. Começa com o 1º.
+            indice_absoluto = 0
+
+            for l in range (1, self.n_nodes): # Varre as linhas.
+                # Verifica se o valor do elemento da linha l, coluna k é maior que o maximo absoluto.
+                # Melhorar essa linha de codigo. talvez não precise da primeira parte do != l.
+                if indice_absoluto != l and abs(self.matriz[l][k]) >= maximo_absoluto:
+                    # Troca o maximo e o indice se for verdade.
+                    maximo_absoluto = abs(self.matriz[l][k])
+                    indice_absoluto = l
+            # Troca as linhas para levar o maior elemento de valor absoluto ao pivô.
+            if abs(self.matriz[indice_absoluto][k]) >= abs(self.matriz[k][k]):
+                self.matriz[indice_absoluto], self.matriz[k] = self.matriz[k], self.matriz[indice_absoluto]
+
+        # Realiza o escalonamento.
+        for k in range (self.n_nodes): # Varre as colunas.
+            for i in range(k + 1, self.n_nodes): # Varre as linhas.
+                alpha_i = self.matriz[i][k] / self.matriz[k][k] # Divide o elemento da linha i pelo pivô.
+                for j in range(k, self.n_nodes): # Varre as colunas.
+                    # Altera os elementos das linhas à direita da coluna que está sendo zerada.
+                    self.matriz[i][j] = self.matriz[i][j] - (alpha_i * self.matriz[k][j])
+
+        return self.matriz
+
+class VetorX:
+    def __init__(self, matriz_escalonada, n_nodes):
+        self.matriz = matriz_escalonada
+        self.n_nodes = n_nodes
+
+    def encontra_vetorx(self):
+        x_n = 1 # Define o vetor da linha de zeros como 1.
+        lista_x_k = [x_n] # Cria lista que receberá o peso das páginas (x_k).
+        for k in range (self.n_nodes-2,-1,-1): # Inicia na penúltima coluna e vai até a primeira.
+            x_k = 0 # Inicia a soma do x_k, que é o vetor em questão que está sendo calculado.
+            for i in range (k+1,self.n_nodes): # Varre as colunas da linha que está sendo calculada.
+                # Multiplica o pivô pelo elemento à direita e soma na x_k.
+                x_k += self.matriz[k][i]*self.matriz[k][k]
+            # Divide a soma total do x_k pelo elemento pivô.
+            x_k = x_k/self.matriz[k][k]
+            # Adiciona o valor do peso de x_k à lista de pesos.
+            lista_x_k.append(x_k)
+
+        # NORMALIZAÇÃO
+        soma_lista = sum(lista_x_k)
+
+        # Divide os pesos de cada elemento pela soma de todos os pesos.
+        for k in range (len(lista_x_k)):
+            lista_x_k[k] = lista_x_k[k]/soma_lista
+
+        # Inverte a ordem da lista para ter o x_1 como primeiro elemento indo até o x_n.
+        lista_x_k.reverse()
+
+        print("\n",lista_x_k)
+        print("\nSoma: ",sum(lista_x_k))
+
+class Vetor_VLC:
+    def __init__(self, matriz_esparsa):
+        self.matriz = matriz_esparsa
+
+    def vetor_VLC(self):
+        V = [] # Elemento.
+        L = [] # Linha do elemento.
+        C = [] # Coluna do elemento.
+
+        for k in range(len(self.matriz)):
+            for j in range(len(self.matriz)):
+                if self.matriz[k][j] != 0:
+                    V.append(self.matriz[k][j]) # Adiciona elemento em V.
+                    L.append(k) # Salva a linha.
+                    C.append(j) # Salva a coluna.
+
+        return V, L, C
