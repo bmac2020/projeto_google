@@ -47,6 +47,7 @@ class MostraVisualizacao:
                 eixo3d.plot(x, y, z, c='black', alpha=0.5)
 
         eixo3d.set_axis_off() # Desabilita os eixos.
+        print("A visualização será exibida por 10 segundos.")
         timeout.start() # Começa o contagem de tempo (10 segundos).
         plt.show() # Exibe o quadro.
         return # Retorna/sai da função.
@@ -62,3 +63,16 @@ class MostraMatriz:
                 print("%4.2f" % self.matriz[i][k], " ", end ='')
             print("")
         return
+
+class MostraMatrizModificada:
+    def __init__(self, matriz_modificada):
+        self.matriz = matriz_modificada
+
+    def mostraModificada(self):
+        print("\n")
+        for i in range(len(self.matriz)):
+            for k in range(len(self.matriz)):
+                # Altere %4.4 pra imprimir com mais casas decimais.
+                # Printa linha por linha com 4 casas decimais.
+                print("%4.4f" % self.matriz[i][k], " ", end ='')
+            print("")
