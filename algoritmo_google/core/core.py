@@ -164,11 +164,14 @@ class VetorX:
         lista_x_k = [x_n] # Cria lista que receberá o peso das páginas (x_k).
         for k in range (self.n_nodes-2,-1,-1): # Inicia na penúltima coluna e vai até a primeira.
             x_k = 0 # Inicia a soma do x_k, que é o vetor em questão que está sendo calculado.
+            p = -1
             for i in range (k+1,self.n_nodes): # Varre as colunas da linha que está sendo calculada.
-                # Multiplica o pivô pelo elemento à direita e soma na x_k.
-                x_k += self.matriz[k][i]*self.matriz[k][k]
+                # Multiplica os elementos à direita do pivô pelo x_n correspondente e soma em x_k.
+                x_k += self.matriz[k][i] * lista_x_k[p]
+                p -= 1
             # Divide a soma total do x_k pelo elemento pivô.
-            x_k = x_k/self.matriz[k][k]
+            # Equivalente a: 5x - 2 = 0 => 5x = 2 => x = 2/5
+            x_k = (-x_k)/self.matriz[k][k]
             # Adiciona o valor do peso de x_k à lista de pesos.
             lista_x_k.append(x_k)
 
@@ -182,8 +185,26 @@ class VetorX:
         # Inverte a ordem da lista para ter o x_1 como primeiro elemento indo até o x_n.
         lista_x_k.reverse()
 
-        print("\n",lista_x_k)
+        # print("\n",lista_x_k)
         print("\nSoma: ",sum(lista_x_k))
+
+        return lista_x_k
+
+class Constante:
+    def __init__(self, matriz_modificada, n_nodes):
+        self.matriz = matriz_modificada
+        self.n_nodes = n_nodes
+
+    def constante_C(self):
+        lista_max = []
+        min_coluna = self.matriz[0][0]
+
+        for j in range(self.n_nodes):
+            for i in range(self.n_nodes):
+                if self.matriz[i][j] < min_coluna:
+                    min_coluna = self.matriz[i][j]
+            lista_max.append(abs(1 - (2 * min_coluna)))
+        return max(lista_max)
 
 class Vetor_VLC:
     def __init__(self, matriz_esparsa):
@@ -202,3 +223,40 @@ class Vetor_VLC:
                     C.append(j) # Salva a coluna.
 
         return V, L, C
+
+class Solucao_Iterativa:
+    def __init__(self, V, L, C, constante):
+        self.V = V
+        self.L = L
+        self.C = C
+        self.constante = constante
+
+    def solucao(self):
+        Z_k1 = [0 for i in range(max(self.L) + 1)] # Inicia nulo com tamanho n da matriz nxn.
+        Y = [1/len(Z_k1) for i in range(len(Z_k1))]
+
+        Erro = 1 # Definido assim para entrar no while.
+
+        Z_k = [1/len(Z_k1) for i in range(len(Z_k1))]
+
+        cont = 0
+        while abs(Erro) >= 1e-5:
+            cont += 1
+            if cont > 10000:
+                break
+
+            Z_k1 = [0 for i in range(max(self.L) + 1)]
+
+            for k in range(len(self.L)):
+                Z_k1[self.L[k]] = Z_k1[self.L[k]] + self.V[k] * Y[self.C[k]]
+            Y = Z_k1[:]
+
+            norma_1_diferenca = 0
+            for i in range(len(Z_k1)):
+                norma_1_diferenca += (Z_k1[i] - Z_k[i])
+            Erro = (self.constante / (1 - self.constante)) * norma_1_diferenca
+
+            print("\nErro:", Erro)
+            Z_k[:] = Z_k1[:]
+
+        return Z_k1
