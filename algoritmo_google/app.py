@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from core import GeraGrafo, GeraMatriz, GeraMatrizModificada, MatrizAuxiliar, Escalonamento, VetorX, Vetor_VLC
+from core import GeraGrafo, GeraMatriz, GeraMatrizModificada, MatrizAuxiliar, Escalonamento, VetorX, Vetor_VLC, Constante, Solucao_Iterativa
 from views import MostraVisualizacao, MostraMatriz, MostraMatrizModificada
 
 def main():
@@ -20,14 +20,16 @@ def main():
     posicao = grafo.posicao()
 
     # Exibindo o grafo em 3D.
-    mostra = MostraVisualizacao(vars(grafo)['grafo'], numero_nodes, posicao, arestas)
-    mostra.gera3d()
+    # mostra = MostraVisualizacao(vars(grafo)['grafo'], numero_nodes, posicao, arestas)
+    # mostra.gera3d()
 
     # Gerando a matriz com base no grafo.
     gera = GeraMatriz(grafo, numero_nodes, arestas)
     matriz = gera.geraMatriz()
+
+    # Gerando a matriz esparsa.
     matriz_esparsa = []
-    matriz_esparsa = matriz[:]
+    matriz_esparsa = gera.geraMatriz()[:]
 
     # Exibindo a matriz.
     MostraMatriz(matriz).mostraMatriz()
@@ -39,6 +41,11 @@ def main():
     # Mostra a Matriz Modificada.
     mostraModificada = MostraMatrizModificada(vars(matriz_modificada)['matriz'])
     mostraModificada.mostraModificada()
+
+    # Gera a constance C
+    constante_c = Constante(vars(matriz_modificada)['matriz'], numero_nodes)
+    constante = constante_c.constante_C()
+    # print("Constante C:", constante)
 
     # Gera a Matriz Auxiliar, que é a matriz subtraida pela Matriz Identidade.
     matriz_auxiliar = MatrizAuxiliar(vars(matriz_modificada)['matriz'], numero_nodes)
@@ -56,14 +63,19 @@ def main():
 
     # Encontrando o Vetor X.
     vetor_X = VetorX(vars(matriz_escalonada)['matriz'], numero_nodes)
-    vetor_X.encontra_vetorx()
+    print("Solução do Escalonamento:", vetor_X.encontra_vetorx())
 
     # Vetores V, L, C.
     vetores = Vetor_VLC(matriz_esparsa)
     V, L, C = vetores.vetor_VLC()
-    print("\nV:",V)
-    print("\nL:", L)
-    print("\nC:", C)
+    # print("\nV:", V)
+    # print("\nL:", L)
+    # print("\nC:", C)
+
+    # Encontrnado a solução iterativa.
+    solucao_it = Solucao_Iterativa(V, L, C, constante)
+    solucao = solucao_it.solucao()
+    print("\nSolução Iterativa:", solucao)
 
 if __name__ == "__main__":
     main()
