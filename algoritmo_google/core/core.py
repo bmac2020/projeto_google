@@ -1,62 +1,161 @@
 #!/usr/bin/python3
 
 import networkx as nx
+import random
 
-class GeraGrafo:
+class Rede:
+    def __init__(self):
+        self.nodes = []
+        self.conexao = []
+
+    def adiciona_node(self, node):
+        self.nodes.append(node)
+
+    def adiciona_nodes(self, nodes):
+        for node in nodes:
+            if node not in self.nodes:
+                self.nodes.append(node)
+
+    def adiciona_conexao(self, conexao):
+        if conexao not in self.conexao:
+            if conexao[0] not in self.nodes:
+                self.nodes.append(conexao[0])
+            if conexao[1] not in self.nodes:
+                self.nodes.append(conexao[1])
+            self.conexao.append(conexao)
+
+    def adiciona_conexoes(self, conexoes):
+        for i in conexoes:
+            self.adiciona_conexao(i)
+
+    def numero_total_nodes(self):
+        return len(self.nodes)
+
+    def conjunto_arestas(self):
+        return self.conexao
+
+class GeraGrafo:  # grafo cacique
     def __init__(self, k):
-        self.caciques = [] # Cria uma lista para armazenar os caciques.
-        self.caciques2 = [] # Cria outra lista para armazenar os caciques.
-        self.numero_caciques = k # Número de caciques.
+        self.caciques = []  # Cria uma lista para armazenar os caciques.
+        self.caciques2 = []  # Cria outra lista para armazenar os caciques.
+        self.numero_caciques = k  # Número de caciques.
 
     def listaNodeCacique(self):
         cont = 0
         # Percorre de 1 até o número de caciques.
-        for j in range(1, int(self.numero_caciques)+1):
-            self.caciques.append(j+cont) # Adiciona os caciques a lista.
-            self.caciques2.append(j+cont) # Adiciona os caciques a lista.
+        for j in range(1, int(self.numero_caciques) + 1):
+            self.caciques.append(j + cont)  # Adiciona os caciques a lista.
+            self.caciques2.append(j + cont)  # Adiciona os caciques a lista.
             cont = cont + j
 
         print("O número dos nodes de cada cacique é", self.caciques)
 
     def criaGrafo(self):
-        self.grafo = nx.DiGraph() # Inicia o grafo.
-        self.grafo.add_nodes_from(self.caciques) # Adiciona os nós dos caciques.
+        # self.grafo = nx.DiGraph()  # Inicia o grafo.
+        self.grafo = Rede()
+        # self.grafo.add_nodes_from(self.caciques)  # Adiciona os nós dos caciques.
+        # print(self.caciques)
+        self.grafo.adiciona_nodes(self.caciques)
 
         count = 0
-        for i in self.caciques: # Percorre a lista dos caciques para fazer a conexão entre os mesmos.
+        for i in self.caciques:  # Percorre a lista dos caciques para fazer a conexão entre os mesmos.
             count = count + 1
-            for p in self.caciques[count:]: # Percorre de count pra frente.
-                self.grafo.add_edge(i, p) # Cria uma conexão (aresta) entre i e p.
-                self.grafo.add_edge(p, i) # Cria uma conexão (aresta) entre p e i.
+            for p in self.caciques[count:]:  # Percorre de count pra frente.
+                # self.grafo.add_edge(i, p)  # Cria uma conexão (aresta) entre i e p.
+                self.grafo.adiciona_conexao((i, p))
+                # self.grafo.add_edge(p, i)  # Cria uma conexão (aresta) entre p e i.
+                self.grafo.adiciona_conexao((p, i))
                 # Aqui é importante fazer duas conexões, pois as conexões no grafo
                 # cacique-tribo são dadas por conexões mútuas.
 
         cont = 1
         while len(self.caciques) != 0:
-            for t in self.caciques: # Faz a conexão entre os caciques e os respectivos índios.
-                self.grafo.add_edge(t, t+cont)
-                self.grafo.add_edge(t+cont, t)
-                for i in self.grafo.edges(): # Faz a conexão entre os índios.
-                    if i[0] == t and i[1] != t+cont and i[1] not in self.caciques2:
-                        self.grafo.add_edge(i[1], t+cont)
-                        self.grafo.add_edge(t+cont, i[1])
-                    elif i[1] == t and i[0] != t+cont and i[0] not in self.caciques2:
-                        self.grafo.add_edge(i[0], t+cont)
-                        self.grafo.add_edge(t+cont, i[0])
+            for t in self.caciques:  # Faz a conexão entre os caciques e os respectivos índios.
+                # self.grafo.add_edge(t, t + cont)
+                self.grafo.adiciona_conexao((t, t+cont))
+                # self.grafo.add_edge(t + cont, t)
+                self.grafo.adiciona_conexao((t+cont, t))
             del self.caciques[0]
             cont = cont + 1
 
-        return self.grafo # Retorna o grafo.
+        nova_lista = []  # Cria uma nova lista que guardará os índios.
+        # for i in self.grafo.edges():  # Percorre todas as conexões.
+        for i in self.grafo.conjunto_arestas():
+            x = list(i)  # É preciso converter para lista, pois as conexões são tuplas.
+            if (x[0] and x[1]) in self.caciques2:  # Se os dois valores forem caciques, então o loop é reiniciado.
+                continue
+            # Verifica se o x[0] é cacique e se x[1] não já foi adicionado a nova_lista
+            elif x[0] in self.caciques2 and x[1] not in nova_lista:
+                nova_lista.append([x[1], x[0]])  # Coloca o cacique como segundo elemento.
+            # Verifica se o x[1] é cacique e se x[0] não já foi adicionado a nova_lista
+            elif x[1] in self.caciques2 and x[0] not in nova_lista:
+                nova_lista.append([x[0], x[1]])  # Coloca o cacique como segundo elemento.
 
-    def n_nodes(self): # Gera o número de nodes (nós) existentes no grafo.
-        return self.grafo.number_of_nodes()
+        for i in self.caciques2:  # Percorre a segunda lista de caciques.
+            list2 = []  # Cria outra nova lista para guardar só os índios.
+            for x in nova_lista:  # Percorre a nova_lista procurando o cacique igual a i.
+                if x[1] == i:
+                    list2.append(x[0])  # Appenda a list2 com o índio desse cacique i.
+            for z in range(len(list2) - 1):  # Percorre a list2 até o penúltimo valor.
+                for k in range(z, len(list2)):  # Percorre list2 de z até o último valor.
+                    if list2[z] != list2[k]:  # Para que não seja feita conexões de um índio consigo mesmo.
+                        # self.grafo.add_edge(list2[z], list2[k])  # Liga um índio ao outro.
+                        self.grafo.adiciona_conexao((list2[z], list2[k]))
+                        # self.grafo.add_edge(list2[k], list2[z])  # Liga um índio ao outro.
+                        self.grafo.adiciona_conexao((list2[k], list2[z]))
 
-    def arestas(self): # Gera as arestas (conexões) existentes no grafo.
-        return self.grafo.edges()
+        return self.grafo  # Retorna o grafo.
 
-    def posicao(self): # Gera a posição do grafo.
-        self.posicao = nx.spring_layout(self.grafo, dim=3)
-        return self.posicao
+    def n_nodes(self):  # Gera o número de nodes (nós) existentes no grafo.
+        # return self.grafo.number_of_nodes()
+        return self.grafo.numero_total_nodes()
+
+    def arestas(self):  # Gera as arestas (conexões) existentes no grafo.
+        # return self.grafo.edges()
+        return self.grafo.conjunto_arestas()
+
+    # def posicao(self):  # Gera a posição do grafo.
+        # self.posicao = nx.spring_layout(self.grafo, dim=3)
+        # return self.posicao
+
+class GeraGrafoAleatorio:
+    def __init__(self, X):
+        self.X = X
+
+    def gera_grafo(self):  # Grafo aleatório
+        # G = nx.DiGraph()
+        G = Rede()
+
+        for i in range(1, self.X + 1):  # Cria x bolinhas, do 1 até o X.
+            # G.add_node(i)
+            G.adiciona_node(i)
+
+        for k in range(1, self.X + 1):  # Varre os nodes para fazer as ligações.
+            lista_numero_ligacoes = random.sample(range(1, self.X + 1), random.randrange(1, self.X - 1))
+            for j in lista_numero_ligacoes:  # Determina com quem o node será ligado.
+                if k == j:  # Se a ligação for com ele mesmo, passa.
+                    pass
+                else:
+                    # G.add_edge(k, j)
+                    G.adiciona_conexao((k,j))
+
+        for k in range (1,self.X+1):
+            ligacao_obrigatoria = random.choice([i for i in range (1,self.X+1) if i not in [k]])
+            # G.add_edge(ligacao_obrigatoria, k)
+            G.adiciona_conexao((ligacao_obrigatoria, k))
+
+        Grafo2 = []
+        # for k in G.edges():
+        for k in G.conjunto_arestas():
+            Grafo2.append(list(k))
+
+        # n_nodes2 = nx.Graph.number_of_nodes(G)
+        n_nodes2 = G.numero_total_nodes()
+        # arestas2 = G.edges()
+        arestas2 = G.conjunto_arestas()
+        # posicao2 = nx.spring_layout(G, dim=3)
+
+        return Grafo2, n_nodes2, arestas2 #, posicao2
 
 class GeraMatriz:
     def __init__(self, grafo, n_nodes, arestas):
@@ -87,7 +186,6 @@ class GeraMatriz:
                     matriz[i][k] = 1/cont
 
         return matriz
-
 
 class GeraMatrizModificada:
     def __init__(self, matriz, n_nodes):
@@ -232,31 +330,28 @@ class Solucao_Iterativa:
         self.constante = constante
 
     def solucao(self):
-        Z_k1 = [0 for i in range(max(self.L) + 1)] # Inicia nulo com tamanho n da matriz nxn.
-        Y = [1/len(Z_k1) for i in range(len(Z_k1))]
-
+        Sn = 1/(max(self.L)+1)
+        alpha = 0.15
+        constante_2 = 1 - alpha
+        Y = [1/(max(self.L)+1) for i in range(max(self.L)+1)]
         Erro = 1 # Definido assim para entrar no while.
 
-        Z_k = [1/len(Z_k1) for i in range(len(Z_k1))]
-
-        cont = 0
         while abs(Erro) >= 1e-5:
-            cont += 1
-            if cont > 10000:
-                break
-
             Z_k1 = [0 for i in range(max(self.L) + 1)]
 
             for k in range(len(self.L)):
-                Z_k1[self.L[k]] = Z_k1[self.L[k]] + self.V[k] * Y[self.C[k]]
-            Y = Z_k1[:]
+                Z_k1[self.L[k]] += self.V[k] * Y[self.C[k]]
+            for i in range(len(Z_k1)):
+                Z_k1[i] = Z_k1[i]*constante_2
+                Z_k1[i] = Z_k1[i] + (alpha*Sn)
+            # Z_k1 == x^(k+1)
+            # Y[i] == x^k
 
             norma_1_diferenca = 0
             for i in range(len(Z_k1)):
-                norma_1_diferenca += (Z_k1[i] - Z_k[i])
+                norma_1_diferenca += (abs(Z_k1[i] - Y[i]))
             Erro = (self.constante / (1 - self.constante)) * norma_1_diferenca
+            # print("\nErro =", Erro)
 
-            print("\nErro:", Erro)
-            Z_k[:] = Z_k1[:]
-
+            Y = Z_k1[:]
         return Z_k1
