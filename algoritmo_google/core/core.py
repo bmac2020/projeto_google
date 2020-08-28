@@ -1,38 +1,7 @@
 #!/usr/bin/python3
 
-import networkx as nx
+from .rede import Rede
 import random
-
-class Rede:
-    def __init__(self):
-        self.nodes = []
-        self.conexao = []
-
-    def adiciona_node(self, node):
-        self.nodes.append(node)
-
-    def adiciona_nodes(self, nodes):
-        for node in nodes:
-            if node not in self.nodes:
-                self.nodes.append(node)
-
-    def adiciona_conexao(self, conexao):
-        if conexao not in self.conexao:
-            if conexao[0] not in self.nodes:
-                self.nodes.append(conexao[0])
-            if conexao[1] not in self.nodes:
-                self.nodes.append(conexao[1])
-            self.conexao.append(conexao)
-
-    def adiciona_conexoes(self, conexoes):
-        for i in conexoes:
-            self.adiciona_conexao(i)
-
-    def numero_total_nodes(self):
-        return len(self.nodes)
-
-    def conjunto_arestas(self):
-        return self.conexao
 
 class GeraGrafo:  # grafo cacique
     def __init__(self, k):
@@ -188,12 +157,13 @@ class GeraMatriz:
         return matriz
 
 class GeraMatrizModificada:
-    def __init__(self, matriz, n_nodes):
+    def __init__(self, matriz, n_nodes, alpha):
         self.matriz = matriz
         self.n_nodes = n_nodes
+        self.alpha = alpha
 
     def cria_MM(self):
-        alfa = 0.15
+        alfa = self.alpha
         alfa_Sn = alfa * 1 / self.n_nodes  # Elementos da Matriz Sn.
         MM = []  # Matriz Modificada.
         MM[:] = self.matriz[:]
@@ -204,154 +174,38 @@ class GeraMatrizModificada:
 
         return MM
 
-class MatrizAuxiliar:
-    def __init__(self, matriz_modificada, n_nodes):
-        self.matriz = matriz_modificada
-        self.n_nodes = n_nodes
+class GeraMatrizInputada:
+    def __init__(self, arquivo):
+        self.arquivo = arquivo
 
-    def cria_matrizaux(self):
-        matriz_aux = []
-        matriz_aux[:] = self.matriz[:]
+    def gera_matriz_inputada(self):
+        matriz_inputada = []
+        try:
+            arq = open(self.arquivo, "r") #abre o arquivo
+            lines = arq.readlines() #retorna uma lista que contém cada linha do arquivo como um item da lista
+        except:
+            return False
 
-        for k in range(self.n_nodes):
-            matriz_aux[k][k] = matriz_aux[k][k] - 1 # Subtrai 1 da diagonal principal.
+        for linha in lines:
+            linhas_matriz_inputada = []
+            lin = linha[:len(linha)-1] #variável que recebe cada linha do arquivo de texto original como uma string
+            v = lin.split('\t') #variável que recebe a linha acima e a transforma em uma lista com n elementos
 
-        return matriz_aux
+            for i in range (len(v)):
+                    linhas_matriz_inputada.append(int(v[i]))
+            matriz_inputada.append(linhas_matriz_inputada)
 
-class Escalonamento:
-    def __init__(self, matriz_aux, n_nodes):
-        self.matriz = matriz_aux
-        self.n_nodes = n_nodes
+        arq.close()
 
-    def escalona(self):
-        # Realiza o pivotamento.
-        for k in range(self.n_nodes): # Varre as colunas.
-            # Define variável que recebe o elemento de maior valor absoluto da coluna. Começa com o 1º.
-            maximo_absoluto = abs(self.matriz[0][k])
-            # Define variável que recebe o indice do maior valor absoluto da coluna. Começa com o 1º.
-            indice_absoluto = 0
+        # conta a quantidade de ligações de cada página
+        for k in range(len(matriz_inputada)):
+            cont = 0
+            for j in range(len(matriz_inputada)):
+                if matriz_inputada[j][k] == 1:
+                    cont += 1
+            # cria a matriz com os pesos
+            for i in range(len(matriz_inputada)):
+                if matriz_inputada[i][k] == 1:
+                    matriz_inputada[i][k] = 1 / cont
 
-            for l in range (1, self.n_nodes): # Varre as linhas.
-                # Verifica se o valor do elemento da linha l, coluna k é maior que o maximo absoluto.
-                # Melhorar essa linha de codigo. talvez não precise da primeira parte do != l.
-                if indice_absoluto != l and abs(self.matriz[l][k]) >= maximo_absoluto:
-                    # Troca o maximo e o indice se for verdade.
-                    maximo_absoluto = abs(self.matriz[l][k])
-                    indice_absoluto = l
-            # Troca as linhas para levar o maior elemento de valor absoluto ao pivô.
-            if abs(self.matriz[indice_absoluto][k]) >= abs(self.matriz[k][k]):
-                self.matriz[indice_absoluto], self.matriz[k] = self.matriz[k], self.matriz[indice_absoluto]
-
-        # Realiza o escalonamento.
-        for k in range (self.n_nodes): # Varre as colunas.
-            for i in range(k + 1, self.n_nodes): # Varre as linhas.
-                alpha_i = self.matriz[i][k] / self.matriz[k][k] # Divide o elemento da linha i pelo pivô.
-                for j in range(k, self.n_nodes): # Varre as colunas.
-                    # Altera os elementos das linhas à direita da coluna que está sendo zerada.
-                    self.matriz[i][j] = self.matriz[i][j] - (alpha_i * self.matriz[k][j])
-
-        return self.matriz
-
-class VetorX:
-    def __init__(self, matriz_escalonada, n_nodes):
-        self.matriz = matriz_escalonada
-        self.n_nodes = n_nodes
-
-    def encontra_vetorx(self):
-        x_n = 1 # Define o vetor da linha de zeros como 1.
-        lista_x_k = [x_n] # Cria lista que receberá o peso das páginas (x_k).
-        for k in range (self.n_nodes-2,-1,-1): # Inicia na penúltima coluna e vai até a primeira.
-            x_k = 0 # Inicia a soma do x_k, que é o vetor em questão que está sendo calculado.
-            p = -1
-            for i in range (k+1,self.n_nodes): # Varre as colunas da linha que está sendo calculada.
-                # Multiplica os elementos à direita do pivô pelo x_n correspondente e soma em x_k.
-                x_k += self.matriz[k][i] * lista_x_k[p]
-                p -= 1
-            # Divide a soma total do x_k pelo elemento pivô.
-            # Equivalente a: 5x - 2 = 0 => 5x = 2 => x = 2/5
-            x_k = (-x_k)/self.matriz[k][k]
-            # Adiciona o valor do peso de x_k à lista de pesos.
-            lista_x_k.append(x_k)
-
-        # NORMALIZAÇÃO
-        soma_lista = sum(lista_x_k)
-
-        # Divide os pesos de cada elemento pela soma de todos os pesos.
-        for k in range (len(lista_x_k)):
-            lista_x_k[k] = lista_x_k[k]/soma_lista
-
-        # Inverte a ordem da lista para ter o x_1 como primeiro elemento indo até o x_n.
-        lista_x_k.reverse()
-
-        # print("\n",lista_x_k)
-        print("\nSoma: ",sum(lista_x_k))
-
-        return lista_x_k
-
-class Constante:
-    def __init__(self, matriz_modificada, n_nodes):
-        self.matriz = matriz_modificada
-        self.n_nodes = n_nodes
-
-    def constante_C(self):
-        lista_max = []
-        min_coluna = self.matriz[0][0]
-
-        for j in range(self.n_nodes):
-            for i in range(self.n_nodes):
-                if self.matriz[i][j] < min_coluna:
-                    min_coluna = self.matriz[i][j]
-            lista_max.append(abs(1 - (2 * min_coluna)))
-        return max(lista_max)
-
-class Vetor_VLC:
-    def __init__(self, matriz_esparsa):
-        self.matriz = matriz_esparsa
-
-    def vetor_VLC(self):
-        V = [] # Elemento.
-        L = [] # Linha do elemento.
-        C = [] # Coluna do elemento.
-
-        for k in range(len(self.matriz)):
-            for j in range(len(self.matriz)):
-                if self.matriz[k][j] != 0:
-                    V.append(self.matriz[k][j]) # Adiciona elemento em V.
-                    L.append(k) # Salva a linha.
-                    C.append(j) # Salva a coluna.
-
-        return V, L, C
-
-class Solucao_Iterativa:
-    def __init__(self, V, L, C, constante):
-        self.V = V
-        self.L = L
-        self.C = C
-        self.constante = constante
-
-    def solucao(self):
-        Sn = 1/(max(self.L)+1)
-        alpha = 0.15
-        constante_2 = 1 - alpha
-        Y = [1/(max(self.L)+1) for i in range(max(self.L)+1)]
-        Erro = 1 # Definido assim para entrar no while.
-
-        while abs(Erro) >= 1e-5:
-            Z_k1 = [0 for i in range(max(self.L) + 1)]
-
-            for k in range(len(self.L)):
-                Z_k1[self.L[k]] += self.V[k] * Y[self.C[k]]
-            for i in range(len(Z_k1)):
-                Z_k1[i] = Z_k1[i]*constante_2
-                Z_k1[i] = Z_k1[i] + (alpha*Sn)
-            # Z_k1 == x^(k+1)
-            # Y[i] == x^k
-
-            norma_1_diferenca = 0
-            for i in range(len(Z_k1)):
-                norma_1_diferenca += (abs(Z_k1[i] - Y[i]))
-            Erro = (self.constante / (1 - self.constante)) * norma_1_diferenca
-            # print("\nErro =", Erro)
-
-            Y = Z_k1[:]
-        return Z_k1
+        return matriz_inputada
