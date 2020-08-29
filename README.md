@@ -38,7 +38,5 @@ O algoritmo de busca do Google e sua relação com a Álgebra Linear
 
   - [x] Por fim, vamos normalizar a solução encontrada.
 
-- [ ] Impressão (algumas ideias abaixo)
-  - [ ] Imprimir um ranking com as páginas
-  - [ ] Apresentação visual com as páginas representadas por círculas cujas tamanhos refletem as respectivas importâncias
-  - [ ] Lista simples
+- [x] Impressão (algumas ideias abaixo)
+  - [x] Imprimir um ranking com as páginas
