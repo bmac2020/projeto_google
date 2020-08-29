@@ -1,6 +1,18 @@
 #!/usr/bin/python3
 
 class Constante:
+    """
+    Essa classe cria a constante que será usada para encontrar o erro da solução iterativa.
+
+    Parâmetros:
+        - matriz_modificada : será usada para obter os valores pra gerar a constante.
+        - n_nodes : número de nós.
+
+    Funções:
+        - constante_C() : depois de percorrer a matriz modificada e fazer
+                processos aritméticos, é retornado a constante C.
+    """
+
     def __init__(self, matriz_modificada, n_nodes):
         self.matriz = matriz_modificada # Define a matriz modificada no escopo da classe.
         self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
@@ -17,6 +29,17 @@ class Constante:
         return max(lista_max) # Retorna o máximo valor da lista.
 
 class Vetor_VLC:
+    """
+    Essa classe gera os vetores V, L, C.
+
+    Parâmetros:
+        - matriz_esparsa : a matriz esparsa é usada para criação dos três vetores.
+
+    Funções:
+        - vetor_VLC() : retorna os vetores V, L, C, que são, respectivamente,
+                elemento não nulo da matriz esparsa, índice da linha desse
+                elemento e índice da coluna desse elemento.
+    """
     def __init__(self, matriz_esparsa):
         self.matriz = matriz_esparsa # Define a matriz esparsa no escopo da classe.
 
@@ -35,6 +58,19 @@ class Vetor_VLC:
         return V, L, C
 
 class Solucao_Iterativa:
+    """
+    Essa classe executa o método Iterativo.
+
+    Parâmetros:
+        - V : vetor que contém os elementos não nulos da matriz esparsa.
+        - L : vetor que contém os índices da linha dos elementos não nulos.
+        - C : vetor que contém os índices da coluna dos elementos não nulos.
+
+    Funções:
+        - solucao() : executa o processo Iterativo, normaliza o vetor solução
+                e retorna esse vetor e no número de iterações.
+    """
+
     def __init__(self, V, L, C, constante, alpha):
         self.V = V # Define o vetor V dentro do escopo da classe.
         self.L = L # Define o vetor L dentro do escopo da classe.

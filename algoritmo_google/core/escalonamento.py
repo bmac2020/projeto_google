@@ -1,6 +1,19 @@
 #!/usr/bin/python3
 
 class MatrizAuxiliar:
+    """
+    Essa classe gera a matriz subtraída pela matriz Identidade.
+
+    Parâmetros:
+        - matriz_modificada : matriz original/esparsa que sofreu modificações.
+        - n_nodes : número de nós.
+
+    Funções:
+        - cria_matrizaux() : retorna a matriz auxiliar após a diagonal da
+                matriz modificada ser subtraída pela matriz Identidade.
+
+    """
+
     def __init__(self, matriz_modificada, n_nodes):
         self.matriz = matriz_modificada # Define a matriz modificada no escopo da classe.
         self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
@@ -15,6 +28,17 @@ class MatrizAuxiliar:
         return matriz_aux
 
 class Escalonamento:
+    """
+    Essa classe realiza o processo de escalonamento usando o método de Gauss.
+
+    Parâmetros:
+        - matriz_aux : matriz auxiliar que será escalonada.
+        - n_nodes :  número de nós.
+
+    Funções:
+        - escalona() : realiza o escalonamento da matriz auxiliar pelo método
+                de Gauss e, por fim, retorna a matriz escalonada.
+    """
     def __init__(self, matriz_aux, n_nodes):
         self.matriz = matriz_aux # Define a matriz auxiliar no escopo da classe.
         self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
@@ -49,6 +73,17 @@ class Escalonamento:
         return self.matriz
 
 class VetorX:
+    """
+    Essa classe encontra o vetor X, que é os valores das incógnitas.
+
+    Parâmetros:
+        - matriz_escalonada : matriz que sofreu o processo de escalonamento.
+        - n_nodes : número de nós.
+
+    Funções:
+        - encontra_vetorx() : encontra os valores das incógnitas do vetor X
+                e normaliza os mesmos.
+    """
     def __init__(self, matriz_escalonada, n_nodes):
         self.matriz = matriz_escalonada # Define a matriz escalonada no escopo da classe.
         self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
