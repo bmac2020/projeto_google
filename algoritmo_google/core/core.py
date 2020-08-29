@@ -3,7 +3,7 @@
 from .rede import Rede
 import random
 
-class GeraGrafo: # Grafo cacique-tribo.
+class GeraGrafoCaciqueTribo: # Grafo cacique-tribo.
     """
     Essa classe gera o grafo da rede cacique-tribo.
 
@@ -24,7 +24,7 @@ class GeraGrafo: # Grafo cacique-tribo.
     def listaNodeCacique(self):
         cont = 0
         # Percorre de 1 até o número de caciques.
-        for j in range(1, int(self.numero_caciques) + 1):
+        for j in range(1, self.numero_caciques + 1):
             self.caciques.append(j + cont)  # Adiciona os caciques a lista.
             self.caciques2.append(j + cont)  # Adiciona os caciques a lista.
             cont = cont + j
@@ -50,28 +50,28 @@ class GeraGrafo: # Grafo cacique-tribo.
             del self.caciques[0]
             cont = cont + 1
 
-        nova_lista = []  # Cria uma nova lista que guardará os índios.
+        lista_caciques_indios = []  # Cria uma nova lista que guardará a conexão dos caciques com os índios.
         for i in self.grafo.conjunto_arestas(): # Percorre todas as conexões.
             x = list(i)  # É preciso converter para lista, pois as conexões são tuplas.
             if (x[0] and x[1]) in self.caciques2:  # Se os dois valores forem caciques, então o loop é reiniciado.
                 continue
-            # Verifica se o x[0] é cacique e se x[1] não já foi adicionado a nova_lista
-            elif x[0] in self.caciques2 and x[1] not in nova_lista:
-                nova_lista.append([x[1], x[0]])  # Coloca o cacique como segundo elemento.
-            # Verifica se o x[1] é cacique e se x[0] não já foi adicionado a nova_lista
-            elif x[1] in self.caciques2 and x[0] not in nova_lista:
-                nova_lista.append([x[0], x[1]])  # Coloca o cacique como segundo elemento.
+            # Verifica se o x[0] é cacique e se x[1] não já foi adicionado a lista_caciques_indios
+            elif x[0] in self.caciques2 and x[1] not in lista_caciques_indios:
+                lista_caciques_indios.append([x[1], x[0]])  # Coloca o cacique como segundo elemento.
+            # Verifica se o x[1] é cacique e se x[0] não já foi adicionado a lista_caciques_indios
+            elif x[1] in self.caciques2 and x[0] not in lista_caciques_indios:
+                lista_caciques_indios.append([x[0], x[1]])  # Coloca o cacique como segundo elemento.
 
         for i in self.caciques2:  # Percorre a segunda lista de caciques.
-            list2 = []  # Cria outra nova lista para guardar só os índios.
-            for x in nova_lista:  # Percorre a nova_lista procurando o cacique igual a i.
+            lista_indios = []  # Cria outra nova lista para guardar só os índios de um mesmo cacique.
+            for x in lista_caciques_indios:  # Percorre a lista_caciques_indios procurando o cacique igual a i.
                 if x[1] == i:
-                    list2.append(x[0])  # Appenda a list2 com o índio desse cacique i.
-            for z in range(len(list2) - 1):  # Percorre a list2 até o penúltimo valor.
-                for k in range(z, len(list2)):  # Percorre list2 de z até o último valor.
-                    if list2[z] != list2[k]:  # Para que não seja feita conexões de um índio consigo mesmo.
-                        self.grafo.adiciona_conexao((list2[z], list2[k])) # Liga um índio ao outro.
-                        self.grafo.adiciona_conexao((list2[k], list2[z])) # Liga um índio ao outro.
+                    lista_indios.append(x[0])  # Appenda a list2 com o índio desse cacique i.
+            for z in range(len(lista_indios) - 1):  # Percorre a lista_indios até o penúltimo valor.
+                for k in range(z, len(lista_indios)):  # Percorre lista_indios de z até o último valor.
+                    if lista_indios[z] != lista_indios[k]:  # Para que não seja feita conexões de um índio consigo mesmo.
+                        self.grafo.adiciona_conexao((lista_indios[z], lista_indios[k])) # Liga um índio ao outro.
+                        self.grafo.adiciona_conexao((lista_indios[k], lista_indios[z])) # Liga um índio ao outro.
 
         return self.grafo  # Retorna o grafo.
 
@@ -164,7 +164,6 @@ class GeraMatrizInputada:
         - gera_matriz_inputada() : percorre o arquivo, transformando as linhas
                 do mesmo em linhas de uma matriz e por último retorna uma
                 matriz com os respectivos pesos.
-
     """
     def __init__(self, arquivo):
         self.arquivo = arquivo # Define o arquivo inputado no escopo da classe
@@ -177,14 +176,19 @@ class GeraMatrizInputada:
         except:
             return False
 
-        for linha in lines:
-            linhas_matriz_inputada = []
-            lin = linha[:len(linha)-1] # Variável que recebe cada linha do arquivo de texto original como uma string.
-            v = lin.split('\t') # Variável que recebe a linha acima e a transforma em uma lista com n elementos.
+        try:
+            for linha in lines:
+                linhas_matriz_inputada = []
+                lin = linha[:len(linha)-1] # Variável que recebe cada linha do arquivo de texto original como uma string.
+                v = lin.split('\t') # Variável que recebe a linha acima e a transforma em uma lista com n elementos.
 
-            for i in range (len(v)):
-                linhas_matriz_inputada.append(int(v[i]))
-            matriz_inputada.append(linhas_matriz_inputada)
+                for i in range (len(v)):
+                    linhas_matriz_inputada.append(int(v[i]))
+                matriz_inputada.append(linhas_matriz_inputada)
+        except:
+            print("Seu arquivo não está no formato esperado.")
+            arq.close()
+            return False
 
         arq.close()
 

@@ -87,25 +87,25 @@ class Solucao_Iterativa:
         iteracoes = 0 # Números de iterações.
 
         while abs(Erro) >= 1e-5: # Enquanto o Erro é maior/igual que 1e-5, o loop é executado.
-            Z_k1 = [0 for i in range(max(self.L) + 1)] # Zera Z_k1 em todo loop.
+            Z_k = [0 for i in range(max(self.L) + 1)] # Zera Z_k em todo loop.
 
-            # Percorre os valores de Z_k1 de índice igual ao elemento de L[k] e faz determinado operação aritmética.
+            # Percorre os valores de Z_k de índice igual ao elemento de L[k] e faz determinado operação aritmética.
             for k in range(len(self.L)):
-                Z_k1[self.L[k]] += self.V[k] * Y[self.C[k]]
-            for i in range(len(Z_k1)): # Percorre todo Z_k1 executando operações aritméticas.
-                Z_k1[i] = Z_k1[i]*constante_2
-                Z_k1[i] = Z_k1[i] + (alpha*Sn)
+                Z_k[self.L[k]] += self.V[k] * Y[self.C[k]]
+            for i in range(len(Z_k)): # Percorre todo Z_k executando operações aritméticas.
+                Z_k[i] = Z_k[i]*constante_2
+                Z_k[i] = Z_k[i] + (alpha*Sn)
 
             norma_1_diferenca = 0
-            for i in range(len(Z_k1)): # Percorre Z_k1 e Y calculando a norma da soma (foi definida no pdf teórico).
-                norma_1_diferenca += (abs(Z_k1[i] - Y[i]))
+            for i in range(len(Z_k)): # Percorre Z_k e Y calculando a norma da soma (foi definida no pdf teórico).
+                norma_1_diferenca += (abs(Z_k[i] - Y[i]))
             Erro = (self.constante / (1 - self.constante)) * norma_1_diferenca # Calcula o Erro.
 
-            Y = Z_k1[:] # Copia o Z_k1.
+            Y = Z_k[:] # Copia o Z_k.
             iteracoes += 1
 
-        soma_lista = sum(Z_k1)
+        soma_lista = sum(Z_k)
         # Divide os pesos de cada elemento pela soma de todos os pesos.
-        for k in range(len(Z_k1)):
-            Z_k1[k] = Z_k1[k] / soma_lista
-        return Z_k1, iteracoes
+        for k in range(len(Z_k)):
+            Z_k[k] = Z_k[k] / soma_lista
+        return Z_k, iteracoes
