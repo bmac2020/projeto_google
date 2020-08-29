@@ -9,11 +9,11 @@ with open('LICENSE') as f:
 setup(
     name="algoritmo_google",
     version="0.1.0",
-    description="Projeto de Modelagem Matemática - PageRank"
+    description="Projeto de Modelagem Matemática - PageRank",
     long_description=readme,
-    author="Gabriel Milani, Guilherme Ventura, Milton Leal, Richard Sousa"
-    author_email="gabriel.milani@usp.br, guilhermeventura@usp.br, milton.leal@usp.br, richardsousa@usp.br"
-    url="https://github.com/bmac2020/projeto_google"
+    author="Gabriel Milani, Guilherme Ventura, Milton Leal, Richard Sousa",
+    author_email="gabriel.milani@usp.br, guilhermeventura@usp.br, milton.leal@usp.br, richardsousa@usp.br",
+    url="https://github.com/bmac2020/projeto_google",
     license=license,
     packages=find_packages(exclude="tests")
 )
