@@ -3,7 +3,19 @@
 from .rede import Rede
 import random
 
-class GeraGrafo:  # grafo cacique
+class GeraGrafo:  # Grafo cacique
+    """
+    Essa classe gera o grafo da rede cacique-tribo.
+
+    Parâmetros:
+        - k : Número de caciques.
+
+    Funções:
+        - listaNodeCacique() : gera duas listas com todos os caciques.
+        - criaGrafo() : gera o grafo da rede e faz as conexões entre caciques e entre caciques e seus respectivos índios.
+        - n_nodes() : retorna o número de nós (leia-se índios).
+        - arestas() : retorna todas as conexões do grafo/rede.
+    """
     def __init__(self, k):
         self.caciques = []  # Cria uma lista para armazenar os caciques.
         self.caciques2 = []  # Cria outra lista para armazenar os caciques.
@@ -16,8 +28,6 @@ class GeraGrafo:  # grafo cacique
             self.caciques.append(j + cont)  # Adiciona os caciques a lista.
             self.caciques2.append(j + cont)  # Adiciona os caciques a lista.
             cont = cont + j
-
-        print("O número dos nodes de cada cacique é", self.caciques)
 
     def criaGrafo(self):
         # self.grafo = nx.DiGraph()  # Inicia o grafo.
@@ -88,6 +98,18 @@ class GeraGrafo:  # grafo cacique
         # return self.posicao
 
 class GeraGrafoAleatorio:
+    """
+    Essa classe gera o grafo da rede aleatória.
+
+    Parâmetros:
+        - X : número de nós que a rede terá.
+
+    Funções:
+        - gera_grafo() : gera o grafo da rede, com as conexões entre os nós, respeitando algumas regras:
+            -
+            -
+            - E por fim, retorna o grafo, os números de nós da rede e as arestas.
+    """
     def __init__(self, X):
         self.X = X
 
@@ -127,6 +149,18 @@ class GeraGrafoAleatorio:
         return Grafo2, n_nodes2, arestas2 #, posicao2
 
 class GeraMatriz:
+    """
+    Essa classe gera a matriz de um grafo/rede, com os respectivos pesos.
+
+    Parâmetros:
+        - grafo : grafo/rede que será usada para gerar a matriz.
+        - n_nodes : número de nós da rede.
+        - arestas : conexões da rede.
+
+    Funções:
+        - geraMatriz() : percorre as conexões e cria matriz inicial trocando as
+            ligações por 1, logo depois cria uma matriz com os respectivos pesos.
+    """
     def __init__(self, grafo, n_nodes, arestas):
         self.n_nodes = n_nodes # Define o número de nós dentro do escopo da classe.
         self.grafo = grafo # Define o grafo dentro do escopo da classe.
@@ -145,65 +179,89 @@ class GeraMatriz:
                 if grafo_lista[k][0] == i:
                     matriz[grafo_lista[k][1]-1][i-1] = 1
 
-        for k in range(len(matriz)):
-            cont = 0
-            for j in range(len(matriz)):
-                if matriz[j][k] == 1:
+        for k in range(len(matriz)): # Percorre as colunas da matriz.
+            cont = 0 # Guarda a soma das colunas.
+            for j in range(len(matriz)): # Percorre as linhas da matriz.
+                if matriz[j][k] == 1: # Se o elemento for 1, então há ligação, logo é incrementado a variável cont.
                     cont += 1
-            for i in range(len(matriz)):
-                if matriz[i][k] == 1:
+            for i in range(len(matriz)): # Percorre as linhas da matriz.
+                if matriz[i][k] == 1: # Se o elemento for 1, então divide esse elemento pela soma dos valores da coluna (normalização).
                     matriz[i][k] = 1/cont
 
         return matriz
 
 class GeraMatrizModificada:
+    """
+    Essa classe modifica a matriz que foi criada na classe acima.
+
+    Parâmetros:
+        - matriz : matriz da rede.
+        - n_nodes : números de nós da rede.
+        - alpha : alpha inputado pelo usuário/padrão.
+
+    Funções:
+        - cria_MM() : cria uma nova matriz modificando os seus valores com base no cálculo:
+                            MM = (1 - alfa)M + alfa*Sn.
+    """
     def __init__(self, matriz, n_nodes, alpha):
-        self.matriz = matriz
-        self.n_nodes = n_nodes
-        self.alpha = alpha
+        self.matriz = matriz # Define a matriz no escopo classe.
+        self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
+        self.alpha = alpha # Define o alpha no escopo da classe.
 
     def cria_MM(self):
         alfa = self.alpha
         alfa_Sn = alfa * 1 / self.n_nodes  # Elementos da Matriz Sn.
         MM = []  # Matriz Modificada.
-        MM[:] = self.matriz[:]
+        MM[:] = self.matriz[:] # Faz uma cópia da matriz.
 
-        for k in range(self.n_nodes):
-            for i in range(self.n_nodes):  # MM = (1 - alfa)M + alfa*Sn.
-                MM[k][i] = (1 - alfa) * MM[k][i] + alfa_Sn
+        for k in range(self.n_nodes): # Percorre as linhas da matriz.
+            for i in range(self.n_nodes): # Percorre as colunas da matriz.
+                MM[k][i] = (1 - alfa) * MM[k][i] + alfa_Sn # MM = (1 - alfa)M + alfa*Sn.
 
         return MM
 
 class GeraMatrizInputada:
+    """
+    Essa classe gera a matriz do grafo inputado por um arquivo.
+
+    Parâmetros:
+        - arquivo : nome do arquivo com o grafo.
+
+    Funções:
+        - gera_matriz_inputada() : percorre o arquivo, transformando as linhas
+                do mesmo em linhas de uma matriz e por último retorna uma
+                matriz com os respectivos pesos.
+
+    """
     def __init__(self, arquivo):
-        self.arquivo = arquivo
+        self.arquivo = arquivo # Define o arquivo inputado no escopo da classe
 
     def gera_matriz_inputada(self):
         matriz_inputada = []
         try:
-            arq = open(self.arquivo, "r") #abre o arquivo
-            lines = arq.readlines() #retorna uma lista que contém cada linha do arquivo como um item da lista
+            arq = open(self.arquivo, "r") # Abre o arquivo.
+            lines = arq.readlines() # Retorna uma lista que contém cada linha do arquivo como um item da lista.
         except:
             return False
 
         for linha in lines:
             linhas_matriz_inputada = []
-            lin = linha[:len(linha)-1] #variável que recebe cada linha do arquivo de texto original como uma string
-            v = lin.split('\t') #variável que recebe a linha acima e a transforma em uma lista com n elementos
+            lin = linha[:len(linha)-1] # Variável que recebe cada linha do arquivo de texto original como uma string.
+            v = lin.split('\t') # Variável que recebe a linha acima e a transforma em uma lista com n elementos.
 
             for i in range (len(v)):
-                    linhas_matriz_inputada.append(int(v[i]))
+                linhas_matriz_inputada.append(int(v[i]))
             matriz_inputada.append(linhas_matriz_inputada)
 
         arq.close()
 
-        # conta a quantidade de ligações de cada página
+        # Conta a quantidade de ligações de cada página.
         for k in range(len(matriz_inputada)):
             cont = 0
             for j in range(len(matriz_inputada)):
                 if matriz_inputada[j][k] == 1:
                     cont += 1
-            # cria a matriz com os pesos
+            # Cria a matriz com os pesos.
             for i in range(len(matriz_inputada)):
                 if matriz_inputada[i][k] == 1:
                     matriz_inputada[i][k] = 1 / cont

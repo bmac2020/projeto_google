@@ -2,22 +2,22 @@
 
 class MatrizAuxiliar:
     def __init__(self, matriz_modificada, n_nodes):
-        self.matriz = matriz_modificada
-        self.n_nodes = n_nodes
+        self.matriz = matriz_modificada # Define a matriz modificada no escopo da classe.
+        self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
 
     def cria_matrizaux(self):
         matriz_aux = []
-        matriz_aux[:] = self.matriz[:]
+        matriz_aux = self.matriz[:] # Copia a matriz.
 
-        for k in range(self.n_nodes):
+        for k in range(self.n_nodes): # Percorre as diagonais.
             matriz_aux[k][k] = matriz_aux[k][k] - 1 # Subtrai 1 da diagonal principal.
 
         return matriz_aux
 
 class Escalonamento:
     def __init__(self, matriz_aux, n_nodes):
-        self.matriz = matriz_aux
-        self.n_nodes = n_nodes
+        self.matriz = matriz_aux # Define a matriz auxiliar no escopo da classe.
+        self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
 
     def escalona(self):
         # Realiza o pivotamento.
@@ -50,8 +50,8 @@ class Escalonamento:
 
 class VetorX:
     def __init__(self, matriz_escalonada, n_nodes):
-        self.matriz = matriz_escalonada
-        self.n_nodes = n_nodes
+        self.matriz = matriz_escalonada # Define a matriz escalonada no escopo da classe.
+        self.n_nodes = n_nodes # Define o número de nós no escopo da classe.
 
     def encontra_vetorx(self):
         x_n = 1 # Define o vetor da linha de zeros como 1.
