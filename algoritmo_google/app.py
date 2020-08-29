@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from core.core import GeraGrafo, GeraMatriz, GeraGrafoAleatorio, GeraMatrizModificada, GeraMatrizInputada
+from core.core import GeraGrafo, GeraMatriz, GeraMatrizModificada, GeraMatrizInputada
 from core.escalonamento import MatrizAuxiliar, Escalonamento, VetorX
 from core.iterativo import Vetor_VLC, Constante, Solucao_Iterativa
 from core.rede import Rede
@@ -93,7 +93,6 @@ def tabela(numeros1, ordenado1, numeros2, ordenado2, tempo, tempo1, iteracoes):
         print("O arquivo com o ranking foi criado com o nome: ranking.txt")
 
 def procedimentos(matrizOriginal, matrizEsparsa, numero_nodes, alpha):
-
     # Começa medir o tempo para o método de escalonamento.
     tempo_inicio = time.time()
     M_M = GeraMatrizModificada(matrizOriginal, numero_nodes, alpha).cria_MM()
