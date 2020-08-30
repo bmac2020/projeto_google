@@ -85,7 +85,7 @@ def tabela(num_escalonamento, ord_escalonamento, num_iterativo, ord_iterativo, t
             file.write("\nPos. \t| Pág. \t| Score \t| Pos. \t| Pág. \t| Score \t| Diferença")
             cont = 1
             for i in range(len(num_escalonamento)):
-                file.write("\n%.2iº \t| %.2i \t| %.5f \t| %.2iº \t| %.2i \t| %.5f \t| %.3e" % (cont, num_escalonamento[i], ord_escalonamento[i], cont, num_iterativos[i], ord_iterativo[i], decimal.Decimal(abs(ord_iterativo[i]-ord_escalonamento[i]))))
+                file.write("\n%.2iº \t| %.2i \t| %.5f \t| %.2iº \t| %.2i \t| %.5f \t| %.3e" % (cont, num_escalonamento[i], ord_escalonamento[i], cont, num_iterativo[i], ord_iterativo[i], decimal.Decimal(abs(ord_iterativo[i]-ord_escalonamento[i]))))
                 cont += 1
             file.write("\nNúmero de iterações do Método Iterativo: %s" % (str(iteracoes)))
             file.write("\nTempo de execução do Método de Escalonamento (em segundos): %s" % str(tempo_escalonamento))
